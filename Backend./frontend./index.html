@@ -1,1 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberVault Pro | Neural Chaos Encryption</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --primary-dark: #00b8c4;
+            --secondary: #ff006e;
+            --accent: #8338ec;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff006e;
+            --dark: #0a0a0f;
+            --darker: #050508;
+            --card-bg: rgba(16, 20, 30, 0.6);
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(0, 240, 255, 0.15);
+            --glow-primary: 0 0 20px rgba(0, 240, 255, 0.3);
+            --glow-secondary: 0 0 20px rgba(255, 0, 110, 0.3);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--darker);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Gradient Overlay */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 0, 110, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(131, 56, 236, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 2rem 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            position: relative;
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5)); }
+            100% { filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.8)); }
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: linePulse 2s infinite;
+        }
+
+        @keyframes linePulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.95rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .status-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .status-bar:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            padding: 0 1rem;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab:hover {
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(131, 56, 236, 0.1));
+            border-color: var(--primary);
+            color: white;
+            box-shadow: var(--glow-primary);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--glow-primary);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--glow-primary);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .card-title-group {
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Upload Zones */
+        .upload-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+            position: relative;
+            overflow: hidden;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .upload-zone:hover::before {
+            opacity: 1;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: var(--glow-primary);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--secondary);
+            background: rgba(255, 0, 110, 0.05);
+            transform: scale(1.05);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .upload-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: transform 0.3s;
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.1);
+        }
+
+        .upload-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--success);
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Preview Section */
+        .preview-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .preview-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .preview-box:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .preview-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .preview-image-container {
+            position: relative;
+            padding: 1rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: 
+                linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.1) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.1) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Metrics Dashboard */
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-desc {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        /* Input Fields */
+        .input-group {
+            margin: 1.5rem 0;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        textarea.input-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #00cc6a);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Algorithm Info */
+        .algo-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            flex-wrap: wrap;
+        }
+
+        .algo-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .algo-arrow {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 8, 0.95);
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid transparent;
+            border-radius: 50%;
+        }
+
+        .loading-spinner::before {
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-spinner::after {
+            border: 3px solid rgba(0, 240, 255, 0.1);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .loading-subtext {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 350px;
+            backdrop-filter: blur(20px);
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: white;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--success);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Info Tooltip */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: white;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            bottom: 135%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: 90vw;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- Background Effects -->
+    <canvas id="particle-canvas"></canvas>
+    <div class="bg-overlay"></div>
+    <div class="scanlines"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <h1 class="logo">CYBERVAULT</h1>
+            <p class="subtitle">U-Net Driven Chaotic Image Encryption</p>
+        </div>
+        <div class="status-bar">
+            <span class="status-dot"></span>
+            <span id="modelStatus">Neural Network Initializing...</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('encrypt')">
+            <span>🔐</span> Encrypt
+        </button>
+        <button class="nav-tab" onclick="switchTab('decrypt')">
+            <span>🔓</span> Decrypt
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Encryption Tab -->
+        <div id="encrypt-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🔐</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">Encrypt Image</h2>
+                        <p class="card-subtitle">Chaotic Confusion-Diffusion Protocol</p>
+                    </div>
+                    <div class="security-badge">
+                        <span>🛡️</span> AES-256 Grade
+                    </div>
+                </div>
+
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="encryptZone">
+                    <input type="file" id="imageInput" accept="image/*">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-title">Drop your image here</div>
+                    <div class="upload-hint">or click to browse • JPG PNG WEBP supported</div>
+                    <div class="file-info" id="encryptFileInfo"></div>
+                </div>
+
+                <!-- Algorithm Flow -->
+                <div class="algo-flow">
+                    <div class="algo-step">
+                        <span>🌊</span> Chaotic Seed
+                    </div>
+                    <span class="algo-arrow">→</span>
+                    <div class="algo-step">
+                        <span>🧠</span> U-Net KeyGen
+                    </div>
+                    <span class="algo-arrow">→</span>
+                    <div class="algo-step">
+                        <span>🔄</span> Permutation
+                    </div>
+                    <span class="algo-arrow">→</span>
+                    <div class="algo-step">
+                        <span>✨</span> XOR Diffusion
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container" id="encryptProgress">
+                    <div class="progress-header">
+                        <span>Processing...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section" id="encryptPreviewSection" style="display: none;">
+                    <div class="preview-box">
+                        <div class="preview-header">
+                            <span>Original Image</span>
+                            <span class="preview-status" id="originalStatus">Ready</span>
+                        </div>
+                        <div class="preview-image-container">
+                            <img class="preview-image" id="originalPreview" style="display: none;">
+                            <div class="preview-placeholder" id="originalPlaceholder">No image selected</div>
+                        </div>
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-header">
+                            <span>Encrypted Output</span>
+                            <span class="preview-status" id="encryptedStatus">Waiting</span>
+                        </div>
+                        <div class="preview-image-container">
+                            <img class="preview-image" id="encryptedPreview" style="display: none;">
+                            <div class="preview-placeholder" id="encryptedPlaceholder">Encryption pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Dashboard -->
+                <div class="metrics-dashboard" id="metricsDashboard" style="display: none;">
+                    <div class="metric-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-value" id="entropyVal">--</div>
+                        <div class="metric-label">Entropy</div>
+                        <div class="metric-desc">Information randomness</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-value" id="npcrVal">--</div>
+                        <div class="metric-label">NPCR %</div>
+                        <div class="metric-desc">Pixel change rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-value" id="uaciVal">--</div>
+                        <div class="metric-label">UACI %</div>
+                        <div class="metric-desc">Intensity change</div>
+                    </div>
+                </div>
+
+                <!-- Chaotic Parameters -->
+                <div class="input-group" id="paramsGroup" style="display: none;">
+                    <label class="input-label">
+                        <span>🔑</span> Chaotic Parameters [x₀, y₀, r₀]
+                        <span class="tooltip" data-tooltip="Copy these for decryption">ℹ️</span>
+                    </label>
+                    <textarea class="input-field" id="chaoticParams" readonly></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <button class="btn" id="encryptBtn" onclick="encryptImage()" disabled>
+                    <span>⚡</span> Initialize Encryption
+                </button>
+
+                <div class="btn-group" id="downloadGroup" style="display: none;">
+                    <button class="btn btn-secondary" onclick="downloadEncrypted()">
+                        <span>💾</span> Download Encrypted
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadPermutation()">
+                        <span>🔑</span> Download Keys
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decryption Tab -->
+        <div id="decrypt-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, var(--secondary), var(--accent));">🔓</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">Decrypt Image</h2>
+                        <p class="card-subtitle">Reverse Chaos Restoration</p>
+                    </div>
+                </div>
+
+                <div class="upload-container">
+                    <div class="upload-zone" id="decryptZone">
+                        <input type="file" id="encryptedInput" accept="image/*">
+                        <div class="upload-icon">🔒</div>
+                        <div class="upload-title">Encrypted Image</div>
+                        <div class="upload-hint">Upload .png encrypted file</div>
+                        <div class="file-info" id="decryptFileInfo"></div>
+                    </div>
+                    <div class="upload-zone" id="permZone">
+                        <input type="file" id="permFile" accept=".json">
+                        <div class="upload-icon">📋</div>
+                        <div class="upload-title">Permutation Keys</div>
+                        <div class="upload-hint">Upload perm_indices.json</div>
+                        <div class="file-info" id="permFileInfo"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span>🔑</span> Chaotic Parameters
+                        <span class="tooltip" data-tooltip="Paste exact values from encryption">ℹ️</span>
+                    </label>
+                    <textarea class="input-field" id="decryptParams" placeholder="[0.123456, 0.789012, 0.345678]"></textarea>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section" id="decryptPreviewSection" style="display: none;">
+                    <div class="preview-box">
+                        <div class="preview-header">
+                            <span>Encrypted Input</span>
+                            <span class="preview-status">Locked</span>
+                        </div>
+                        <div class="preview-image-container">
+                            <img class="preview-image" id="decryptInputPreview" style="display: none;">
+                            <div class="preview-placeholder">Upload encrypted image</div>
+                        </div>
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-header">
+                            <span>Decrypted Output</span>
+                            <span class="preview-status" style="background: rgba(0, 255, 136, 0.1); color: var(--success);">Restored</span>
+                        </div>
+                        <div class="preview-image-container">
+                            <img class="preview-image" id="decryptedPreview" style="display: none;">
+                            <div class="preview-placeholder">Decryption pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" id="decryptBtn" onclick="decryptImage()" disabled>
+                    <span>🗝</span> Decrypt Image
+                </button>
+
+                <button class="btn btn-success" id="downloadDecryptedBtn" onclick="downloadDecrypted()" style="display: none; margin-top: 1rem;">
+                    <span>💾</span> Download Restored Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Initializing Neural Network...</div>
+        <div class="loading-subtext" id="loadingSubtext">This may take a moment on first run</div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ==========================================
+        // PARTICLE BACKGROUND ANIMATION
+        // ==========================================
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2;
+                this.color = Math.random() > 0.5 ? 'rgba(0, 240, 255, 0.5)' : 'rgba(131, 56, 236, 0.3)';
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.min(50, (canvas.width * canvas.height) / 15000);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.1 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            connectParticles();
+            animationId = requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        resizeCanvas();
+        initParticles();
+        animateParticles();
+
+        // ==========================================
+        // GLOBAL STATE
+        // ==========================================
+        let currentEncryptedData = null;
+        let currentPermutationData = null;
+        let currentDecryptedData = null;
+        let currentOriginalFile = null;
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            checkModelStatus();
+            setupDragDrop();
+            setupFileInputs();
+        });
+
+        // ==========================================
+        // TAB SWITCHING
+        // ==========================================
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            event.target.closest('.nav-tab').classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+
+        // ==========================================
+        // MODEL STATUS
+        // ==========================================
+        async function checkModelStatus() {
+            try {
+                const resp = await fetch('/api/model-status');
+                const data = await resp.json();
+                const statusEl = document.getElementById('modelStatus');
+                const dot = document.querySelector('.status-dot');
+
+                if (data.ready) {
+                    statusEl.textContent = 'Neural Network Ready';
+                    dot.style.background = 'var(--success)';
+                    dot.style.boxShadow = '0 0 10px var(--success)';
+                } else {
+                    statusEl.textContent = 'Initializing U-Net...';
+                    dot.style.background = 'var(--warning)';
+                    dot.style.boxShadow = '0 0 10px var(--warning)';
+                    setTimeout(checkModelStatus, 3000);
+                }
+            } catch (e) {
+                document.getElementById('modelStatus').textContent = 'API Offline';
+                document.querySelector('.status-dot').style.background = 'var(--danger)';
+            }
+        }
+
+        // ==========================================
+        // DRAG & DROP
+        // ==========================================
+        function setupDragDrop() {
+            ['encryptZone', 'decryptZone', 'permZone'].forEach(id => {
+                const zone = document.getElementById(id);
+                if (!zone) return;
+
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    zone.addEventListener(eventName, preventDefaults, false);
+                });
+
+                zone.addEventListener('dragenter', () => zone.classList.add('dragover'));
+                zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+                zone.addEventListener('drop', (e) => {
+                    zone.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length) {
+                        const input = zone.querySelector('input');
+                        const dt = new DataTransfer();
+                        dt.items.add(files[0]);
+                        input.files = dt.files;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // ==========================================
+        // FILE INPUTS
+        // ==========================================
+        function setupFileInputs() {
+            document.getElementById('imageInput').addEventListener('change', (e) => {
+                handleFileSelect(e.target.files[0], 'encrypt');
+            });
+            document.getElementById('encryptedInput').addEventListener('change', (e) => {
+                handleFileSelect(e.target.files[0], 'decrypt');
+            });
+            document.getElementById('permFile').addEventListener('change', (e) => {
+                handlePermFile(e.target.files[0]);
+            });
+        }
+
+        function handleFileSelect(file, type) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    if (type === 'encrypt') {
+                        currentOriginalFile = file;
+                        document.getElementById('originalPreview').src = e.target.result;
+                        document.getElementById('originalPreview').style.display = 'block';
+                        document.getElementById('originalPlaceholder').style.display = 'none';
+                        document.getElementById('originalStatus').textContent = `${img.width}×${img.height}`;
+                        document.getElementById('encryptPreviewSection').style.display = 'grid';
+                        document.getElementById('encryptFileInfo').textContent = `✓ ${file.name} (${formatBytes(file.size)})`;
+                        document.getElementById('encryptFileInfo').classList.add('show');
+                        document.getElementById('encryptZone').classList.add('has-file');
+                        document.getElementById('encryptBtn').disabled = false;
+                    } else {
+                        document.getElementById('decryptInputPreview').src = e.target.result;
+                        document.getElementById('decryptInputPreview').style.display = 'block';
+                        document.getElementById('decryptFileInfo').textContent = `✓ ${file.name}`;
+                        document.getElementById('decryptFileInfo').classList.add('show');
+                        document.getElementById('decryptZone').classList.add('has-file');
+                        document.getElementById('decryptPreviewSection').style.display = 'grid';
+                        checkDecryptReady();
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePermFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    currentPermutationData = JSON.parse(e.target.result);
+                    document.getElementById('permFileInfo').textContent = `✓ ${file.name} (${currentPermutationData.length} indices)`;
+                    document.getElementById('permFileInfo').classList.add('show');
+                    document.getElementById('permZone').classList.add('has-file');
+                    showToast('success', 'Keys Loaded', 'Permutation indices loaded successfully');
+                    checkDecryptReady();
+                } catch (err) {
+                    showToast('error', 'Invalid File', 'Please upload a valid JSON file');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function checkDecryptReady() {
+            const hasImage = document.getElementById('decryptZone').classList.contains('has-file');
+            const hasParams = document.getElementById('decryptParams').value.trim() !== '';
+            const hasPerm = currentPermutationData !== null;
+            const btn = document.getElementById('decryptBtn');
+            btn.disabled = !(hasImage && hasParams && hasPerm);
+
+            if (!btn.disabled) {
+                btn.innerHTML = '<span>🗝</span> Ready to Decrypt';
+            }
+        }
+
+        document.getElementById('decryptParams').addEventListener('input', checkDecryptReady);
+
+        // ==========================================
+        // ENCRYPTION
+        // ==========================================
+        async function encryptImage() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files.length) return;
+
+            showLoading('Initializing Chaotic Encryption...', 'Generating U-Net keys from chaotic seeds');
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                updateProgress(progress);
+            }, 300);
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const resp = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await resp.json();
+                clearInterval(progressInterval);
+                updateProgress(100);
+
+                if (!resp.ok) throw new Error(data.detail || 'Encryption failed');
+
+                // Store data
+                currentEncryptedData = data.encrypted_image;
+                currentPermutationData = data.key_data.perm_indices;
+
+                // Display results
+                setTimeout(() => {
+                    hideLoading();
+                    document.getElementById('encryptedPreview').src = `data:image/png;base64,${data.encrypted_image}`;
+                    document.getElementById('encryptedPreview').style.display = 'block';
+                    document.getElementById('encryptedPlaceholder').style.display = 'none';
+                    document.getElementById('encryptedStatus').textContent = 'Encrypted';
+                    document.getElementById('encryptedStatus').style.cssText = 'background: rgba(255, 0, 110, 0.1); color: var(--secondary);';
+
+                    // Show metrics
+                    document.getElementById('metricsDashboard').style.display = 'grid';
+                    animateValue('entropyVal', 0, data.metrics.encrypted_entropy, 1000, 2);
+                    animateValue('npcrVal', 0, data.metrics.npcr, 1000, 2);
+                    animateValue('uaciVal', 0, data.metrics.uaci, 1000, 2);
+
+                    // Show params
+                    document.getElementById('paramsGroup').style.display = 'block';
+                    document.getElementById('chaoticParams').value = JSON.stringify(data.chaotic_params, null, 2);
+
+                    // Show downloads
+                    document.getElementById('downloadGroup').style.display = 'grid';
+                    document.getElementById('encryptBtn').style.display = 'none';
+
+                    showToast('success', '🔐 Encryption Complete', `Entropy: ${data.metrics.encrypted_entropy.toFixed(2)} bits | NPCR: ${data.metrics.npcr.toFixed(1)}%`);
+                }, 500);
+
+            } catch (err) {
+                clearInterval(progressInterval);
+                hideLoading();
+                showToast('error', '❌ Encryption Failed', err.message);
+            }
+        }
+
+        // ==========================================
+        // DECRYPTION
+        // ==========================================
+        async function decryptImage() {
+            const fileInput = document.getElementById('encryptedInput');
+            if (!fileInput.files.length || !currentPermutationData) return;
+
+            let chaoticParams;
+            try {
+                chaoticParams = JSON.parse(document.getElementById('decryptParams').value);
+            } catch (e) {
+                showToast('error', 'Invalid Parameters', 'Use format: [0.1, 0.2, 0.3]');
+                return;
+            }
+
+            showLoading('Reversing Chaos Diffusion...', 'Restoring original pixel arrangement');
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const encryptedBase64 = reader.result.split(',')[1];
+
+                const req = {
+                    encrypted_image: encryptedBase64,
+                    chaotic_params: chaoticParams,
+                    perm_indices: currentPermutationData,
+                    image_shape: [256, 256, 3]
+                };
+
+                try {
+                    const resp = await fetch('/api/decrypt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(req)
+                    });
+
+                    const data = await resp.json();
+                    hideLoading();
+
+                    if (!resp.ok) throw new Error(data.detail || 'Decryption failed');
+
+                    currentDecryptedData = data.decrypted_image;
+                    document.getElementById('decryptedPreview').src = `data:image/png;base64,${data.decrypted_image}`;
+                    document.getElementById('decryptedPreview').style.display = 'block';
+                    document.getElementById('downloadDecryptedBtn').style.display = 'flex';
+
+                    // Update button
+                    const btn = document.getElementById('decryptBtn');
+                    btn.innerHTML = '<span>✓</span> Decryption Successful';
+                    btn.classList.add('btn-success');
+
+                    showToast('success', '🔓 Decryption Complete', 'Image restored with perfect fidelity');
+
+                } catch (err) {
+                    hideLoading();
+                    showToast('error', '❌ Decryption Failed', err.message);
+                }
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        // ==========================================
+        // DOWNLOADS
+        // ==========================================
+        async function downloadEncrypted() {
+            if (!currentEncryptedData) return;
+
+            showLoading('Preparing Download...');
+
+            const resp = await fetch('/api/download_encrypted', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ encrypted_image: currentEncryptedData })
+            });
+
+            const blob = await resp.blob();
+            downloadBlob(blob, 'encrypted_chaos.png');
+            hideLoading();
+            showToast('success', '💾 Downloaded', 'Encrypted image saved');
+        }
+
+        function downloadPermutation() {
+            if (!currentPermutationData) return;
+            const blob = new Blob([JSON.stringify(currentPermutationData, null, 2)], { type: 'application/json' });
+            downloadBlob(blob, 'perm_indices.json');
+            showToast('success', '🔑 Downloaded', 'Permutation keys saved');
+        }
+
+        function downloadDecrypted() {
+            if (!currentDecryptedData) return;
+            const blob = base64ToBlob(currentDecryptedData, 'image/png');
+            downloadBlob(blob, 'decrypted_restored.png');
+            showToast('success', '💾 Downloaded', 'Restored image saved');
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function base64ToBlob(base64, type) {
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type: type });
+        }
+
+        // ==========================================
+        // UI HELPERS
+        // ==========================================
+        function showLoading(text, subtext = '') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingSubtext').textContent = subtext;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+            document.getElementById('encryptProgress').classList.remove('show');
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('encryptProgress').classList.add('show');
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(percent)}%`;
+        }
+
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
+        function animateValue(id, start, end, duration, decimals = 0) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            stepTime = Math.max(stepTime, minTimer);
+
+            let startTime = new Date().getTime();
+            let endTime = startTime + duration;
+            let timer;
+
+            function run() {
+                let now = new Date().getTime();
+                let remaining = Math.max((endTime - now) / duration, 0);
+                let value = Math.round(end - (remaining * range));
+                obj.innerHTML = (value / Math.pow(10, decimals)).toFixed(decimals);
+                if (value == end) {
+                    clearInterval(timer);
+                }
+            }
+
+            timer = setInterval(run, stepTime);
+            run();
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
